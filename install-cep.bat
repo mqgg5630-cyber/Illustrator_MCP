@@ -90,10 +90,13 @@ echo  Installation Complete!
 echo =============================================
 echo.
 echo Next steps:
-echo 1. Start the proxy-server: cd proxy-server ^&^& npm install ^&^& node index.js
+echo 1. Register the MCP server with your AI client, e.g. for Google Antigravity:
+echo      install-antigravity.bat
+echo    (or: python scripts\install_antigravity.py)
 echo 2. Open Adobe Illustrator
 echo 3. Go to Window ^> Extensions ^> MCP Control
-echo 4. Click "Connect" in the panel
+echo 4. Click "Connect" in the panel (WebSocket port 8081 by default)
+echo 5. Optional self-check: python -m illustrator_mcp.doctor --handshake
 echo.
 echo To debug the panel, open Chrome and navigate to:
 echo   http://localhost:8088

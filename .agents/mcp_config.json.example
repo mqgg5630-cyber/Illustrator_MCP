@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "illustrator": {
+      "command": "python",
+      "args": ["-m", "illustrator_mcp.server"],
+      "env": {
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "WS_PORT": "8081",
+        "TIMEOUT": "30"
+      }
+    }
+  }
+}

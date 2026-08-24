@@ -2,6 +2,8 @@
 Configuration management for Illustrator MCP.
 """
 import logging as _logging
+from pathlib import Path
+from typing import Tuple, Union
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,11 +15,20 @@ BRIDGE_EXECUTION_BUFFER: float = 5.0  # extra timeout for thread coordination
 RECONNECT_INTERVAL_MS: int = 3000     # CEP panel reconnect interval
 
 
+# MCP hosts do not all launch the server with the project root as CWD —
+# Google Antigravity, for example, starts stdio servers from its own program
+# folder. Resolve .env next to the package as well so WS_PORT / TIMEOUT set by
+# the user are honoured no matter where the process was spawned from.
+PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
+ENV_FILES: Tuple[Union[str, Path], ...] = (PROJECT_ROOT / ".env", ".env")
+
+
 class Config(BaseSettings):
     """Configuration with validation and .env support."""
     
     model_config = SettingsConfigDict(
-        env_file='.env',
+        # Later entries win: a .env in the CWD overrides the project-root one.
+        env_file=ENV_FILES,
         env_file_encoding='utf-8',
         case_sensitive=False,
         extra='ignore'

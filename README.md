@@ -87,6 +87,12 @@ pip install -e .
 
 This installs core dependencies including [Pillow](https://python-pillow.org/) for VLM preview overlays.
 
+> **MCP SDK versions:** both `mcp` 1.x (`mcp.server.fastmcp.FastMCP`) and `mcp` 2.x
+> (`mcp.server.mcpserver.MCPServer`) are supported — `illustrator_mcp/compat.py`
+> resolves whichever one is installed. If you see
+> `No module named 'mcp.server.fastmcp'`, you are on an older checkout; pull the
+> latest code or pin `pip install "mcp>=1.9.0,<3.0.0"`.
+
 **Optional — boolean path operations:**
 
 ```bash
@@ -130,6 +136,57 @@ The panel appears under **Window > Extensions > MCP Control**.
 ---
 
 ## Configuration
+
+### Google Antigravity (反重力)
+
+> Full Chinese walkthrough: **[docs/ANTIGRAVITY.md](docs/ANTIGRAVITY.md)**
+
+Antigravity reads `mcp_config.json` from `~/.gemini/config/` (global) or
+`<workspace>/.agents/` (per project) — not `claude_desktop_config.json`. It also
+launches stdio servers **without your shell `PATH`** and with a working
+directory that is not your project, so the entry needs absolute paths. Run the
+installer to generate it:
+
+```bash
+python -m pip install -e .
+python scripts/install_antigravity.py           # writes global + workspace configs
+```
+
+Windows users can run `install-antigravity.bat`, which does both steps. Useful
+flags: `--scope global|workspace`, `--port 8090`, `--print-config`, `--verify`,
+`--uninstall`, `--dry-run --json`.
+
+The resulting entry:
+
+```json
+{
+  "mcpServers": {
+    "illustrator": {
+      "command": "/absolute/path/to/python",
+      "args": ["-m", "illustrator_mcp.server"],
+      "env": {
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "WS_PORT": "8081",
+        "TIMEOUT": "30"
+      },
+      "cwd": "/absolute/path/to/Illustrator_MCP"
+    }
+  }
+}
+```
+
+Restart Antigravity, then check **Agent panel → … → MCP Servers** (2.0:
+**Settings → Customizations → Installed MCP Servers**; CLI: `/mcp`). The
+workspace skill for VLM QA checkpoints lives in `.agents/skills/vlm-checkpoint/`
+(the legacy `.agent/` spelling is kept for older builds).
+
+**Self-check:**
+
+```bash
+python -m illustrator_mcp.doctor              # deps, panel, port, config audit
+python -m illustrator_mcp.doctor --handshake  # + a real MCP stdio handshake
+```
 
 ### Claude Desktop
 

@@ -9,7 +9,9 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Dict, Any
 
-from mcp.server.fastmcp import FastMCP
+# Import via the compat layer: mcp 1.x ships FastMCP, mcp 2.x renamed it to
+# MCPServer. See illustrator_mcp/compat.py.
+from illustrator_mcp.compat import FastMCP
 
 logger = logging.getLogger(__name__)
 
