@@ -189,6 +189,10 @@ def _sync_transaction(conn, manifest, topic_dir, collection_name, zotero_storage
     r = c.fetchone()
     journal_type_id = r[0] if r else 22
 
+    c.execute("SELECT itemTypeID FROM itemTypes WHERE typeName = 'preprint'")
+    r = c.fetchone()
+    preprint_type_id = r[0] if r else journal_type_id
+
     c.execute("SELECT itemTypeID FROM itemTypes WHERE typeName = 'attachment'")
     r = c.fetchone()
     attach_type_id = r[0] if r else 3
@@ -217,6 +221,11 @@ def _sync_transaction(conn, manifest, topic_dir, collection_name, zotero_storage
     date_fid = field_map.get("date", 14)
     doi_fid = field_map.get("DOI", 26)
     abstract_fid = field_map.get("abstractNote", 2)
+    volume_fid = field_map.get("volume")
+    issue_fid = field_map.get("issue")
+    pages_fid = field_map.get("pages")
+    lang_fid = field_map.get("language")
+    extra_fid = field_map.get("extra")
 
     synced_items = []
     chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
@@ -249,12 +258,12 @@ def _sync_transaction(conn, manifest, topic_dir, collection_name, zotero_storage
         c.execute("""
             INSERT INTO items (itemTypeID, dateAdded, dateModified, clientDateModified, key, libraryID)
             VALUES (?, datetime('now'), datetime('now'), datetime('now'), ?, 1)
-        """, (journal_type_id, item_key))
+        """, (preprint_type_id if it.get("type") == "preprint" else journal_type_id, item_key))
         parent_item_id = c.lastrowid
 
         # 插入元数据字段
         def insert_val(fid, val):
-            if not val:
+            if not val or fid is None:
                 return
             c.execute("SELECT valueID FROM itemDataValues WHERE value = ?", (str(val),))
             r_val = c.fetchone()
@@ -267,9 +276,20 @@ def _sync_transaction(conn, manifest, topic_dir, collection_name, zotero_storage
 
         insert_val(title_fid, title)
         insert_val(journal_fid, it.get("journal", ""))
-        insert_val(date_fid, str(it.get("year", "2024")))
+        year = str(it.get("year") or "").strip()
+        insert_val(date_fid, f"{year}-00-00 {year}" if re.fullmatch(r"\d{4}", year) else year)
         insert_val(doi_fid, it.get("doi", ""))
         insert_val(abstract_fid, it.get("abstract", ""))
+        insert_val(volume_fid, it.get("volume", ""))
+        insert_val(issue_fid, it.get("issue", ""))
+        insert_val(pages_fid, it.get("pages", ""))
+        insert_val(lang_fid, "zh-CN" if it.get("lang") == "zh" else "en")
+        extra_bits = []
+        if it.get("pmid"): extra_bits.append(f"PMID: {it['pmid']}")
+        if it.get("pmcid"): extra_bits.append(f"PMCID: {it['pmcid']}")
+        vst = (it.get("verification") or {}).get("status")
+        if vst: extra_bits.append(f"verification: {vst}")
+        insert_val(extra_fid, "\n".join(extra_bits))
 
         # 关联到集合
         c.execute("INSERT OR IGNORE INTO collectionItems (collectionID, itemID) VALUES (?, ?)", (collection_id, parent_item_id))

@@ -232,9 +232,23 @@ def run_pipeline_worker(req: SearchRequest):
         task_state["status_text"] = "正在执行纯正性与排伪审查门禁..."
         auditor = LiteratureAuditor(theme_dir)
         clean_count, evicted_count = auditor.audit_and_purge()
-        add_log(f"🛡️ [排伪门禁] 审查完毕: {clean_count} 篇通过, 剔除 {evicted_count} 篇损坏/无效文件。")
+        add_log(f"🛡️ [文件门禁] 审查完毕: {clean_count} 篇通过, 剔除 {evicted_count} 篇损坏/无效文件。")
+
+        # 2b. 元数据加厚 + 外部权威反向核验 + 写作素材 digest（不读 PDF）
+        from agents.common.enrich import enrich_manifest
+        from agents.common.verify import verify_manifest
+        from agents.common.digest import write_digest
+        task_state["status_text"] = "正在向 Crossref / OpenAlex / Europe PMC 聚合元数据..."
+        add_log("🧩 [Enrich] 聚合 Crossref/OpenAlex/Europe PMC 元数据、JATS 结果与结论段、MeSH 主题...")
+        enrich_manifest(theme_dir, verbose=False)
+        task_state["status_text"] = "正在执行外部权威反向核验 (Zero-Fake Gate v2)..."
+        _, vsum = verify_manifest(theme_dir, purge=True, verbose=False)
+        add_log(f"🔎 [权威核验] ✅ verified {vsum['verified']} · ⚠️ suspicious {vsum['suspicious']} · ❌ unverified {vsum['unverified']} · 🛑 retracted {vsum['retracted']}（后两类已移出 manifest）")
+        clean_count = vsum["verified"] + vsum["suspicious"]
+        digest_dir = write_digest(theme_dir)
+        add_log(f"📚 [Digest] 写作素材已生成: {digest_dir}\\INDEX.md（Antigravity 据此撰写 outline.json）")
         
-        # 3. Zotero 活体挂载 (仅对通过排伪门禁的真文献进行同步)
+        # 3. Zotero 活体挂载 (仅对通过权威核验的真文献进行同步)
         if req.sync_zotero and clean_count > 0:
             task_state["status_text"] = "正在将实体文献与 Zotero 数据库建立物理附件关联..."
             add_log("📎 [Zotero 联动] 写入 SQLite 元数据、作者表与 E:/ozotero/storage 物理附件...")

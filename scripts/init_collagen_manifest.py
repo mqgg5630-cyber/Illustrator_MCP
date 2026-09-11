@@ -3,7 +3,14 @@
 """
 init_collagen_manifest.py
 初始化中英双轨胶原蛋白稳定性课题元数据与 References.bib / References.ris
+
+⚠️ 已弃用（仅作历史演示保留）：本文件中的作者、摘要、部分 DOI 为手工编造，未经权威源核验。
+   真实入库请走 GUI / run_hybrid_pipeline.py --prepare（harvest → enrich → verify → digest）。
+   若这批条目已写入 Zotero，用以下命令清理：
+     python scripts\purge_unverified.py <theme_dir> --recheck --apply
 """
+import warnings as _w
+_w.warn("init_collagen_manifest.py 含未核验的示例数据，勿用于正式入库", stacklevel=1)
 
 import os
 import sys

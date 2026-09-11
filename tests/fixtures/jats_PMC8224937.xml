@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article xmlns:xlink="http://www.w3.org/1999/xlink" article-type="research-article">
+<front><article-meta><article-id pub-id-type="pmcid">PMC8224937</article-id><article-id pub-id-type="doi">10.1371/journal.pcbi.1009079</article-id>
+<title-group><article-title>Mechanism of collagen folding propagation studied by Molecular Dynamics simulations</article-title></title-group>
+<abstract><p>Collagen forms a characteristic triple helical structure and plays a central role for stabilizing the extra-cellular matrix. The triple helix folding was found to propagate involving first two chains forming a short transient template. Secondly, three residues of the third chain fold on this template with an overall mean propagation of ~75 ns per unit.</p></abstract>
+</article-meta></front>
+<body>
+<sec id="sec001" sec-type="intro"><title>Introduction</title>
+<p>With one third of human proteins, collagen is the most abundant protein of our body. It appears in many different tissue types like skin, cartilage, bone or hair and plays an essential role for the stability of the extracellular matrix and whole body.<xref ref-type="bibr" rid="pcbi.1009079.ref001">[1]</xref></p>
+</sec>
+<sec id="sec002" sec-type="results"><title>Results</title>
+<sec id="sec003"><title>Folding propagation of the wild type triple helix</title>
+<p>In the majority of simulations starting from a partially folded C-terminal nucleus the triple helix propagated towards the N-terminus. The folding propagation involved first two chains forming a short transient template followed by three residues of the third chain folding on this template. The overall mean propagation time was ~75 ns per unit of three residues (<xref ref-type="table" rid="pcbi.1009079.t001">Table 1</xref>).</p>
+<p>The formation of loops with multiples of the repeating unit was found as a characteristic misfolding event especially when starting from an unstable nucleus.</p>
+</sec>
+<sec id="sec004"><title>Effect of Gly substitutions</title>
+<p>We performed 10 folding propagation simulations with one chain containing a central Gly7Ala (G7aA) or a Gly7aThr (G7aT) mutation. In both cases only about half of the simulations resulted in successful propagation to the fully folded triple helix. Interestingly, the average folding time in the successful cases rose to 900ns in the G7aA case and 590ns in the G7aT case qualitatively consistent with experimental result on decreased folding rates of G→A replacements in collagen model peptides.</p>
+<p>Based on an energetic analysis of the folding process using a continuum solvent model we also estimated the mean energy change during the propagation process. For the wild type case a drop of the mean energy by ~80 kcal·mol-1 comparing the fully folded ensemble vs. the unfolded ensemble was obtained.</p>
+</sec>
+</sec>
+<sec id="sec005" sec-type="discussion"><title>Discussion</title>
+<p>Since collagens are the product of very long genes it is likely that mutations occur at some positions and may accumulate during evolution. Most critical is the substitution of the flexible Gly by other residues.</p>
+</sec>
+<sec id="sec006" sec-type="conclusions"><title>Conclusion</title>
+<p>The simulations indicate that collagen triple helix propagation proceeds via a transient two-chain template followed by sequential attachment of the third chain in units of three residues on a ~75 ns time scale per unit. Central Gly→Ala or Gly→Thr substitutions resulted in reduced stability and folding rates due to structural deformations interfering with folding propagation, and in 6 out of 10 simulations of the all G7abcA case only transient near-native structures were observed.</p>
+</sec>
+<sec id="sec007" sec-type="methods"><title>Methods</title>
+<p>All simulations were performed with the Amber18 package using the ff14SB force field and OPC water at 300 K with a 4 fs time step enabled by hydrogen mass repartitioning.</p>
+</sec>
+</body>
+<back><ref-list><title>References</title><ref id="pcbi.1009079.ref001"><mixed-citation>Shoulders MD, Raines RT. Collagen Structure and Stability. Annu Rev Biochem. 2009;78: 929–958.</mixed-citation></ref></ref-list></back>
+</article>

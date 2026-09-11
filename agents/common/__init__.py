@@ -7,10 +7,16 @@ agents.common
 from .zotero_sync import sync_to_zotero
 from .literature_harvester import EnglishLiteratureHarvester
 from .audit_gate import LiteratureAuditor, sanitize_theme_directory
+from .enrich import enrich_manifest, enrich_record
+from .verify import verify_manifest, verify_record
+from .digest import write_digest
 
 __all__ = [
     "sync_to_zotero",
     "EnglishLiteratureHarvester",
     "LiteratureAuditor",
-    "sanitize_theme_directory"
+    "sanitize_theme_directory",
+    "enrich_manifest", "enrich_record",
+    "verify_manifest", "verify_record",
+    "write_digest",
 ]

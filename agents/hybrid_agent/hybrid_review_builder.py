@@ -773,25 +773,31 @@ def write_outline_skeleton(theme_dir: str, force: bool = False) -> str:
         return out
     with open(manifest_file, "r", encoding="utf-8") as f:
         manifest = json.load(f)
+    def _ok(it):
+        st = (it.get("verification") or {}).get("status")
+        return st in (None, "verified", "suspicious")   # 未跑 verify 的旧 manifest 也放行
     refs = [
         {
             "zotero_key": it.get("zotero_key"),
             "lang": it.get("lang", "en"),
+            "type": it.get("type", ""),
+            "verification": (it.get("verification") or {}).get("status", "unchecked"),
             "title": it.get("title", ""),
-            "authors": it.get("authors", []),
+            "authors": (it.get("authors") or [])[:3],
             "journal": it.get("journal", ""),
             "year": it.get("year", ""),
-            "pdf": it.get("pdf_filename", ""),
-            "abstract": (it.get("abstract") or "")[:600],
+            "tldr": it.get("tldr", ""),
+            "digest_card": f"digest/{it.get('zotero_key')}.md",
         }
-        for it in manifest if it.get("zotero_key")
+        for it in manifest if it.get("zotero_key") and _ok(it)
     ]
     skeleton = {
         "_instructions": (
-            "由 Antigravity 填写：1) 通读 _available_references 中每篇 PDF；2) 填写 meta/摘要/关键词；"
+            "由 Antigravity 按 .agents/skills/review-writing/SKILL.md 填写：1) 先读 digest/INDEX.md 与 digest/literature_matrix.md，再按需打开每篇 digest_card（不读 PDF）；2) 填写 meta/摘要/关键词；"
             "3) 在 chapters 中撰写 4~6 章、每章 2~3 节；每节 blocks 为 paragraph 或 table；"
             "paragraph.segments 中每个 segment 为 {text, cite:[zotero_key,...]}，cite 只能填下方列出的 key；"
-            "\"__ALL__\" 表示引用全部文献；4) 删除本字段与 _available_references，另存为 outline.json。"
+            "\"__ALL__\" 表示引用全部文献；正文中每个数值必须能在对应 digest_card 的 Quotable facts / Abstract / Results / Conclusion 中逐字找到；"
+            "type=review 的文献只能用于背景/现状段；4) 删除本字段与 _available_references，另存为 outline.json。"
         ),
         "_available_references": refs,
         "meta": {k: "" for k in [

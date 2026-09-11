@@ -1,0 +1,77 @@
+{
+ "version": "6.9",
+ "hitCount": 1,
+ "resultList": {
+  "result": [
+   {
+    "id": "34101748",
+    "source": "MED",
+    "pmid": "34101748",
+    "pmcid": "PMC8224937",
+    "doi": "10.1371/journal.pcbi.1009079",
+    "title": "Mechanism of collagen folding propagation studied by Molecular Dynamics simulations.",
+    "authorString": "Hartmann J, Zacharias M.",
+    "journalInfo": {
+     "issue": "6",
+     "volume": "17",
+     "yearOfPublication": 2021,
+     "journal": {
+      "title": "PLoS computational biology",
+      "medlineAbbreviation": "PLoS Comput Biol",
+      "issn": "1553-734X"
+     }
+    },
+    "pubYear": "2021",
+    "pageInfo": "e1009079",
+    "abstractText": "Collagen forms a characteristic triple helical structure and plays a central role for stabilizing the extra-cellular matrix. After a C-terminal nucleus formation folding proceeds to form long triple-helical fibers. The molecular details of triple helix folding process is of central importance for an understanding of several human diseases associated with misfolded or unstable collagen fibrils. However, the folding propagation is too rapid to be studied by experimental high resolution techniques. We employed multiple Molecular Dynamics simulations starting from unfolded peptides with an already formed nucleus to successfully follow the folding propagation in atomic detail. The triple helix folding was found to propagate involving first two chains forming a short transient template. Secondly, three residues of the third chain fold on this template with an overall mean propagation of ~75 ns per unit. The formation of loops with multiples of the repeating unit was found as a characteristic misfolding event especially when starting from an unstable nucleus. Central Gly→Ala or Gly→Thr substitutions resulted in reduced stability and folding rates due to structural deformations interfering with folding propagation.",
+    "language": "eng",
+    "pubTypeList": {
+     "pubType": [
+      "Research Support, Non-U.S. Gov't",
+      "research-article",
+      "Journal Article"
+     ]
+    },
+    "meshHeadingList": {
+     "meshHeading": [
+      {
+       "descriptorName": "Extracellular Matrix"
+      },
+      {
+       "descriptorName": "Humans"
+      },
+      {
+       "descriptorName": "Collagen"
+      },
+      {
+       "descriptorName": "Amino Acid Substitution"
+      },
+      {
+       "descriptorName": "Computational Biology"
+      },
+      {
+       "descriptorName": "Protein Conformation"
+      },
+      {
+       "descriptorName": "Protein Folding"
+      },
+      {
+       "descriptorName": "Point Mutation"
+      },
+      {
+       "descriptorName": "Protein Stability"
+      },
+      {
+       "descriptorName": "Molecular Dynamics Simulation"
+      }
+     ]
+    },
+    "isOpenAccess": "Y",
+    "inEPMC": "Y",
+    "inPMC": "Y",
+    "hasPDF": "Y",
+    "citedByCount": 12
+   }
+  ]
+ }
+}

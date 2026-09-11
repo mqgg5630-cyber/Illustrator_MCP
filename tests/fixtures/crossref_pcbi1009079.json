@@ -1,0 +1,107 @@
+{
+ "status": "ok",
+ "message-type": "work",
+ "message-version": "1.0.0",
+ "message": {
+  "update-to": [
+   {
+    "DOI": "10.1371/journal.pcbi.1009079",
+    "type": "new_version",
+    "label": "New version",
+    "source": "publisher",
+    "updated": {
+     "date-parts": [
+      [
+       2021,
+       6,
+       24
+      ]
+     ]
+    }
+   }
+  ],
+  "reference-count": 35,
+  "publisher": "Public Library of Science (PLoS)",
+  "issue": "6",
+  "license": [
+   {
+    "start": {
+     "date-parts": [
+      [
+       2021,
+       6,
+       8
+      ]
+     ]
+    },
+    "content-version": "vor",
+    "delay-in-days": 0,
+    "URL": "http://creativecommons.org/licenses/by/4.0/"
+   }
+  ],
+  "short-container-title": [
+   "PLoS Comput Biol"
+  ],
+  "abstract": "<jats:p>Collagen forms a characteristic triple helical structure and plays a central role for stabilizing the extra-cellular matrix. After a C-terminal nucleus formation folding proceeds to form long triple-helical fibers. The molecular details of triple helix folding process is of central importance for an understanding of several human diseases associated with misfolded or unstable collagen fibrils. However, the folding propagation is too rapid to be studied by experimental high resolution techniques. We employed multiple Molecular Dynamics simulations starting from unfolded peptides with an already formed nucleus to successfully follow the folding propagation in atomic detail. The triple helix folding was found to propagate involving first two chains forming a short transient template. Secondly, three residues of the third chain fold on this template with an overall mean propagation of ~75 ns per unit. The formation of loops with multiples of the repeating unit was found as a characteristic misfolding event especially when starting from an unstable nucleus. Central Gly→Ala or Gly→Thr substitutions resulted in reduced stability and folding rates due to structural deformations interfering with folding propagation.</jats:p>",
+  "DOI": "10.1371/journal.pcbi.1009079",
+  "type": "journal-article",
+  "created": {
+   "date-parts": [
+    [
+     2021,
+     6,
+     8
+    ]
+   ]
+  },
+  "page": "e1009079",
+  "source": "Crossref",
+  "is-referenced-by-count": 18,
+  "title": [
+   "Mechanism of collagen folding propagation studied by Molecular Dynamics simulations"
+  ],
+  "prefix": "10.1371",
+  "volume": "17",
+  "author": [
+   {
+    "given": "Julian",
+    "family": "Hartmann",
+    "sequence": "first",
+    "affiliation": []
+   },
+   {
+    "ORCID": "https://orcid.org/0000-0001-5163-2663",
+    "given": "Martin",
+    "family": "Zacharias",
+    "sequence": "additional",
+    "affiliation": []
+   }
+  ],
+  "member": "340",
+  "published-online": {
+   "date-parts": [
+    [
+     2021,
+     6,
+     8
+    ]
+   ]
+  },
+  "container-title": [
+   "PLoS Computational Biology"
+  ],
+  "issued": {
+   "date-parts": [
+    [
+     2021,
+     6,
+     8
+    ]
+   ]
+  },
+  "ISSN": [
+   "1553-7358"
+  ],
+  "URL": "https://doi.org/10.1371/journal.pcbi.1009079"
+ }
+}

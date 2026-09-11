@@ -1,0 +1,44 @@
+{
+ "status": "ok",
+ "message": {
+  "DOI": "10.1016/s0140-6736(97)11096-0",
+  "type": "journal-article",
+  "title": [
+   "RETRACTED: Ileal-lymphoid-nodular hyperplasia, non-specific colitis, and pervasive developmental disorder in children"
+  ],
+  "author": [
+   {
+    "given": "AJ",
+    "family": "Wakefield"
+   }
+  ],
+  "container-title": [
+   "The Lancet"
+  ],
+  "issued": {
+   "date-parts": [
+    [
+     1998,
+     2,
+     28
+    ]
+   ]
+  },
+  "update-to": [
+   {
+    "DOI": "10.1016/s0140-6736(97)11096-0",
+    "type": "retraction",
+    "label": "Retraction",
+    "updated": {
+     "date-parts": [
+      [
+       2010,
+       2,
+       6
+      ]
+     ]
+    }
+   }
+  ]
+ }
+}

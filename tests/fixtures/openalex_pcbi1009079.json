@@ -1,0 +1,120 @@
+{
+ "id": "https://openalex.org/W3170021837",
+ "doi": "https://doi.org/10.1371/journal.pcbi.1009079",
+ "title": "Mechanism of collagen folding propagation studied by Molecular Dynamics simulations",
+ "type": "article",
+ "publication_year": 2021,
+ "is_retracted": false,
+ "cited_by_count": 19,
+ "primary_location": {
+  "is_oa": true,
+  "pdf_url": "https://journals.plos.org/ploscompbiol/article/file?id=10.1371/journal.pcbi.1009079&type=printable",
+  "source": {
+   "display_name": "PLoS Computational Biology",
+   "issn_l": "1553-734X",
+   "is_in_doaj": true,
+   "type": "journal"
+  },
+  "license": "cc-by",
+  "version": "publishedVersion"
+ },
+ "best_oa_location": {
+  "is_oa": true,
+  "pdf_url": "https://journals.plos.org/ploscompbiol/article/file?id=10.1371/journal.pcbi.1009079&type=printable",
+  "source": {
+   "display_name": "PLoS Computational Biology",
+   "is_in_doaj": true
+  }
+ },
+ "authorships": [
+  {
+   "author_position": "first",
+   "author": {
+    "display_name": "Julian Hartmann",
+    "orcid": null
+   }
+  },
+  {
+   "author_position": "last",
+   "author": {
+    "display_name": "Martin Zacharias",
+    "orcid": "https://orcid.org/0000-0001-5163-2663"
+   }
+  }
+ ],
+ "concepts": [
+  {
+   "display_name": "Folding (DSP implementation)",
+   "level": 2,
+   "score": 0.7317
+  },
+  {
+   "display_name": "Triple helix",
+   "level": 2,
+   "score": 0.7169
+  },
+  {
+   "display_name": "Molecular dynamics",
+   "level": 2,
+   "score": 0.6944
+  },
+  {
+   "display_name": "Biophysics",
+   "level": 1,
+   "score": 0.6408
+  },
+  {
+   "display_name": "Protein folding",
+   "level": 2,
+   "score": 0.5807
+  },
+  {
+   "display_name": "Nucleus",
+   "level": 2,
+   "score": 0.5707
+  },
+  {
+   "display_name": "Crystallography",
+   "level": 1,
+   "score": 0.4827
+  },
+  {
+   "display_name": "Chemistry",
+   "level": 0,
+   "score": 0.4713
+  },
+  {
+   "display_name": "Fibril",
+   "level": 2,
+   "score": 0.4329
+  },
+  {
+   "display_name": "Stereochemistry",
+   "level": 1,
+   "score": 0.1866
+  }
+ ],
+ "keywords": [
+  {
+   "display_name": "Triple helix",
+   "score": 0.7169
+  },
+  {
+   "display_name": "Molecular dynamics",
+   "score": 0.6944
+  },
+  {
+   "display_name": "Protein folding",
+   "score": 0.5807
+  }
+ ],
+ "ids": {
+  "openalex": "https://openalex.org/W3170021837",
+  "doi": "https://doi.org/10.1371/journal.pcbi.1009079",
+  "pmid": "https://pubmed.ncbi.nlm.nih.gov/34101748",
+  "pmcid": "https://www.ncbi.nlm.nih.gov/pmc/articles/8224937"
+ },
+ "abstract_inverted_index": null,
+ "referenced_works_count": 35,
+ "language": "en"
+}

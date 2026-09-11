@@ -12,6 +12,10 @@ import os
 import sys
 import argparse
 
+WORKSPACE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if WORKSPACE_ROOT not in sys.path:
+    sys.path.insert(0, WORKSPACE_ROOT)
+
 if sys.platform == "win32":
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -27,6 +31,8 @@ def main():
     parser.add_argument("--theme-dir", required=True, help="课题主题目录绝对路径")
     parser.add_argument("--col-name", default=None, help="Zotero 分类集合名称")
     parser.add_argument("--skip-zotero", action="store_true", help="跳过 Zotero 挂载，仅编译 DOCX")
+    parser.add_argument("--prepare", action="store_true", help="只执行 enrich → verify → digest → skeleton，供 Antigravity 撰写 outline.json；不编译")
+    parser.add_argument("--no-enrich", action="store_true", help="跳过 enrich/verify/digest（manifest 已处理过时使用）")
     args = parser.parse_args()
 
     theme_dir = args.theme_dir
@@ -39,7 +45,25 @@ def main():
     print(f"📁 目标主题目录: {theme_dir}")
     print("=" * 65)
 
+    if not args.no_enrich:
+        from agents.common.enrich import enrich_manifest
+        from agents.common.verify import verify_manifest
+        from agents.common.digest import write_digest
+        print("🧩 [1/4] Enrich: 多源元数据聚合 (Crossref / OpenAlex / Europe PMC / JATS / S2)")
+        enrich_manifest(theme_dir)
+        print("🔎 [2/4] Verify: 外部权威反向核验，移出 unverified / retracted")
+        _, vsum = verify_manifest(theme_dir, purge=True)
+        print("📚 [3/4] Digest: 生成 digest/INDEX.md 与单篇卡片")
+        write_digest(theme_dir)
+        if vsum["verified"] + vsum["suspicious"] == 0:
+            print("❌ 没有任何文献通过权威核验，终止。")
+            sys.exit(3)
+
     outline = os.path.join(theme_dir, "outline.json")
+    if args.prepare:
+        skel = write_outline_skeleton(theme_dir, force=True)
+        print(f"📝 [4/4] 已生成 {skel}\n   → 请 Antigravity 按 review-writing skill 阅读 digest/INDEX.md 撰写 outline.json，再运行本脚本（可加 --no-enrich）。")
+        sys.exit(0)
     if not os.path.exists(outline):
         skel = write_outline_skeleton(theme_dir)
         print(f"❌ 缺少 {outline}")

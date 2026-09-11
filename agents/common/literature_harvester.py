@@ -10,6 +10,7 @@ import sys
 import json
 import re
 import time
+import random
 import ssl
 import socket
 import urllib.request
@@ -87,7 +88,7 @@ def download_and_verify_pdf(url, output_path, max_retries=2):
     """下载并验证 PDF 真实性（必须包含 %PDF- 二进制头，且大小 >= 50KB）"""
     for attempt in range(max_retries):
         try:
-            req = urllib.request.Request(url, headers=HEADERS)
+            req = urllib.request.Request(url, headers={**HEADERS, "Accept": "application/pdf,*/*;q=0.5"})
             with OPENER.open(req, timeout=30) as resp:
                 data = resp.read()
 
@@ -119,7 +120,7 @@ class EnglishLiteratureHarvester:
         # 增加 type:article 过滤，并通过 mailto 使用 Polite Pool
         url = (
             f"https://api.openalex.org/works?search={clean_q}"
-            f"&filter=has_doi:true,is_oa:true,type:article"
+            f"&filter=has_doi:true,is_oa:true,type:article|review"
             f"&per-page={candidate_limit * 2}"
             f"&mailto={self.email}"
         )
@@ -151,12 +152,11 @@ class EnglishLiteratureHarvester:
                     if a.get("author") and a.get("author", {}).get("display_name")
                 ]
                 if not authors_list:
-                    authors_list = ["Research Consortium"]
+                    continue  # 无作者信息的记录不入库，绝不用占位作者
 
-                # 还原真实摘要
-                abstract = reconstruct_openalex_abstract(it.get("abstract_inverted_index"))
-                if not abstract:
-                    abstract = f"Scholarly article published in {journal} ({year})."
+                # 还原真实摘要；拿不到留空，交给 enrich 从 Crossref/Europe PMC 补
+                abstract = reconstruct_openalex_abstract(it.get("abstract_inverted_index")) or ""
+                pmcid = ((it.get("ids") or {}).get("pmcid") or "").rsplit("/", 1)[-1] or None
 
                 results.append({
                     "source": "OpenAlex",
@@ -166,7 +166,11 @@ class EnglishLiteratureHarvester:
                     "year": year,
                     "doi": doi,
                     "abstract": abstract,
-                    "pdf_url": pdf_url
+                    "type": "review" if it.get("type") == "review" else "article",
+                    "is_retracted": bool(it.get("is_retracted")),
+                    "pmcid": pmcid,
+                    "pdf_url": pdf_url,
+                    "pdf_url_fallbacks": ([f"https://europepmc.org/backend/ptpmcrender.fcgi?accid={pmcid}&blobtype=pdf"] if pmcid else []),
                 })
                 if len(results) >= candidate_limit:
                     break
@@ -195,24 +199,24 @@ class EnglishLiteratureHarvester:
                     continue
                 doi = normalize_doi(it.get("doi"))
                 pmcid = it.get("pmcid")
-                pdf_url = None
+                candidates = []
                 if pmcid:
-                    pdf_url = f"https://europepmc.org/backend/ptpmcrender.fcgi?accid={pmcid}&blobtype=pdf"
-                else:
-                    full_urls = it.get("fullTextUrlList", {}).get("fullTextUrl", [])
-                    for u in full_urls:
-                        if u.get("documentStyle") == "pdf":
-                            pdf_url = u.get("url")
-                            break
-                if not pdf_url:
+                    candidates.append(f"https://europepmc.org/backend/ptpmcrender.fcgi?accid={pmcid}&blobtype=pdf")
+                for u in it.get("fullTextUrlList", {}).get("fullTextUrl", []):
+                    if u.get("documentStyle") == "pdf" and u.get("url") and u["url"] not in candidates:
+                        candidates.append(u["url"])
+                if not candidates:
                     continue
+                pdf_url = candidates[0]
 
                 author_str = it.get("authorString", "")
-                authors_list = [a.strip() for a in author_str.split(",") if a.strip()] if author_str else ["Research Team"]
-                journal = it.get("journalTitle") or "Life Sciences Journal"
-                year = str(it.get("pubYear", "2024"))
-                abstract = it.get("abstractText") or f"Scholarly research published in {journal}."
-                clean_abs = re.sub(r"<[^>]+>", "", abstract)
+                authors_list = [a.strip() for a in author_str.rstrip(".").split(",") if a.strip()]
+                if not authors_list:
+                    continue  # 无作者不入库
+                journal = it.get("journalTitle") or ""
+                year = str(it.get("pubYear") or "")
+                clean_abs = re.sub(r"<[^>]+>", "", it.get("abstractText") or "")
+                pub_types = [t.lower() for t in (it.get("pubTypeList") or {}).get("pubType", [])]
 
                 results.append({
                     "source": "Europe PMC",
@@ -222,7 +226,11 @@ class EnglishLiteratureHarvester:
                     "year": year,
                     "doi": doi,
                     "abstract": clean_abs,
-                    "pdf_url": pdf_url
+                    "type": "review" if "review" in pub_types else "article",
+                    "pmid": it.get("pmid"),
+                    "pmcid": pmcid,
+                    "pdf_url": pdf_url,
+                    "pdf_url_fallbacks": candidates[1:],
                 })
             print(f"✅ [Europe PMC] 成功检索到 {len(results)} 条候选文献")
             return results
@@ -278,12 +286,22 @@ class EnglishLiteratureHarvester:
             pdf_name = f"{first_author}_{item['year']}_{safe_title}.pdf"
             pdf_path = os.path.join(self.output_dir, pdf_name)
 
+            if os.path.exists(pdf_path):  # 同名冲突（同一作者同年同题）
+                pdf_name = pdf_name[:-4] + f"_{idx}.pdf"
+                pdf_path = os.path.join(self.output_dir, pdf_name)
+
             print(f"[{len(accepted)+1}/{count}] 正在下载: {item['title'][:45]}...")
-            ok, size = download_and_verify_pdf(item["pdf_url"], pdf_path)
+            ok, size = False, 0
+            for u in [item["pdf_url"]] + list(item.get("pdf_url_fallbacks") or []):
+                ok, size = download_and_verify_pdf(u, pdf_path)
+                if ok:
+                    item["pdf_url"] = u
+                    break
             if ok:
                 chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
-                item["zotero_key"] = "".join(time.strftime("%M%S")) + str(idx).zfill(2)
-                item["attach_key"] = "ATT" + "".join(time.strftime("%M%S")) + str(idx).zfill(1)
+                item["zotero_key"] = "".join(random.choice(chars) for _ in range(8))
+                item["attach_key"] = "".join(random.choice(chars) for _ in range(8))
+                item.pop("pdf_url_fallbacks", None)
                 item["local_pdf"] = pdf_path
                 item["pdf_filename"] = pdf_name
                 item["file_size_kb"] = size // 1024
