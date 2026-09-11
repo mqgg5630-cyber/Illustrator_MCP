@@ -10,7 +10,7 @@
 
 ### 方式一：Windows 桌面 / 资源管理器一键双击启动（推荐）
 直接在 Windows 文件资源管理器中找到并双击运行批处理脚本：
-👉 **[Start_Academic_Hub.bat](file:///E:/0mcp-agv/academic_hub_gui/Start_Academic_Hub.bat)**
+👉 **[Start_Academic_Hub.bat](./Start_Academic_Hub.bat)**
 
 - 双击后，系统会自动启动后台轻量级服务，并在默认浏览器中自动打开工作台交互界面：`http://127.0.0.1:8765`。
 

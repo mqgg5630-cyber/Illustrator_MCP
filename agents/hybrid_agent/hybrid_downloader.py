@@ -18,12 +18,17 @@ import time
 import subprocess
 import tempfile
 
-# 强制重定向临时目录至 E 盘
-SCRATCH_DIR = r"E:\0mcp-agv\scratch"
-os.makedirs(SCRATCH_DIR, exist_ok=True)
-os.environ["TEMP"] = SCRATCH_DIR
-os.environ["TMP"] = SCRATCH_DIR
-tempfile.tempdir = SCRATCH_DIR
+# 强制重定向临时目录至 E 盘（可通过 HUB_SCRATCH_DIR 覆盖；目录不可用时不阻断 import）
+SCRATCH_DIR = os.environ.get("HUB_SCRATCH_DIR", r"E:\0mcp-agv\scratch")
+try:
+    if not os.path.isabs(SCRATCH_DIR):
+        raise OSError("scratch dir must be absolute on this platform")
+    os.makedirs(SCRATCH_DIR, exist_ok=True)
+    os.environ["TEMP"] = SCRATCH_DIR
+    os.environ["TMP"] = SCRATCH_DIR
+    tempfile.tempdir = SCRATCH_DIR
+except OSError:
+    pass
 
 if sys.platform == "win32":
     try:
@@ -50,6 +55,20 @@ def sync_hybrid_to_zotero(topic_dir, collection_name=None):
     time.sleep(0.6)
 
     conn = sqlite3.connect(ZOTERO_SQLITE, timeout=25)
+    try:
+        synced_items = _sync_items_transaction(conn, manifest, topic_dir, collection_name)
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"❌ [Hybrid Agent] Zotero 写入失败，事务已回滚: {e}")
+        raise
+    finally:
+        conn.close()
+    print(f"🎉 [Hybrid Agent] 成功将全部 {len(synced_items)} 篇中英双轨文献物理挂载至 Zotero！")
+    return True
+
+
+def _sync_items_transaction(conn, manifest, topic_dir, collection_name):
     c = conn.cursor()
 
     if not collection_name:
@@ -132,7 +151,4 @@ def sync_hybrid_to_zotero(topic_dir, collection_name=None):
 
         synced_items.append({"key": item_key, "title": title, "pdf_filename": pdf_filename, "attach_key": attach_key})
 
-    conn.commit()
-    conn.close()
-    print(f"🎉 [Hybrid Agent] 成功将全部 {len(synced_items)} 篇中英双轨文献物理挂载至 Zotero！")
-    return True
+    return synced_items

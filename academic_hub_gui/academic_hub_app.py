@@ -41,12 +41,30 @@ OUTPUT_BASE = r"E:\0mcp-agv\ARTA_Agent_Output"
 ZOTERO_STORAGE = r"E:\ozotero\storage"
 ZOTERO_SQLITE = r"E:\ozotero\zotero.sqlite"
 CONFIG_FILE = os.path.join(WORKSPACE_DIR, "academic_hub_gui", "hub_config.json")
-SCRATCH_DIR = r"E:\0mcp-agv\scratch"
+SCRATCH_DIR = os.environ.get("HUB_SCRATCH_DIR", r"E:\0mcp-agv\scratch")
 
-os.makedirs(SCRATCH_DIR, exist_ok=True)
-os.environ["TEMP"] = SCRATCH_DIR
-os.environ["TMP"] = SCRATCH_DIR
-tempfile.tempdir = SCRATCH_DIR
+try:
+    if not os.path.isabs(SCRATCH_DIR):
+        raise OSError("scratch dir must be absolute on this platform")
+    os.makedirs(SCRATCH_DIR, exist_ok=True)
+    os.environ["TEMP"] = SCRATCH_DIR
+    os.environ["TMP"] = SCRATCH_DIR
+    tempfile.tempdir = SCRATCH_DIR
+except OSError:
+    pass
+
+# 本地 API 仅允许访问以下根目录，防止浏览器侧 CSRF 触发任意路径读取/打开
+ALLOWED_ROOTS = (OUTPUT_BASE, ZOTERO_STORAGE, WORKSPACE_DIR)
+
+def _is_allowed_path(p: str) -> bool:
+    try:
+        real = os.path.realpath(p)
+        for root in ALLOWED_ROOTS:
+            if os.path.commonpath([real, os.path.realpath(root)]) == os.path.realpath(root):
+                return True
+    except (ValueError, OSError):
+        pass
+    return False
 
 os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
 os.makedirs(OUTPUT_BASE, exist_ok=True)
@@ -266,13 +284,15 @@ def api_compile_docx(req: CompileRequest, background_tasks: BackgroundTasks):
         return JSONResponse({"status": "error", "message": "已有任务正在运行中，请稍候！"})
     if not os.path.exists(req.theme_dir):
         return JSONResponse({"status": "error", "message": "指定的课题目录不存在！"})
+    if not _is_allowed_path(req.theme_dir):
+        return JSONResponse({"status": "error", "message": "课题目录不在受控输出根目录内，已拒绝。"})
     background_tasks.add_task(run_compile_worker, req.theme_dir)
     return {"status": "success", "message": "已启动学术专著活体编译流水线..."}
 
 @app.get("/api/get_manifest")
 def api_get_manifest(theme_dir: str):
     manifest_path = os.path.join(theme_dir, "manifest.json")
-    if os.path.exists(manifest_path):
+    if _is_allowed_path(theme_dir) and os.path.exists(manifest_path):
         try:
             with open(manifest_path, "r", encoding="utf-8") as f:
                 return json.load(f)
@@ -283,6 +303,8 @@ def api_get_manifest(theme_dir: str):
 @app.post("/api/open_path")
 def api_open_path(req: OpenPathRequest):
     p = req.path.strip()
+    if p and not _is_allowed_path(p):
+        return JSONResponse({"status": "error", "message": "路径不在受控目录内，已拒绝打开。"})
     if os.path.exists(p):
         try:
             if sys.platform == "win32":
@@ -653,7 +675,7 @@ HTML_TEMPLATE = """
                 <div class="checkbox-group">
                     <label class="check-item">
                         <input type="checkbox" id="chkZotero" checked>
-                        <span>自动挂载至本地 Zotero 库 (零占用 C 盘)</span>
+                        <span>自动挂载至本地 Zotero 库 (零占用 C 盘) <span style="color:#f59e0b" title="挂载前会强制关闭正在运行的 Zotero 客户端以释放数据库锁，请先保存 Zotero 中未完成的编辑">⚠ 将强制关闭 Zotero</span></span>
                     </label>
                     <label class="check-item">
                         <input type="checkbox" id="chkGmail" checked>

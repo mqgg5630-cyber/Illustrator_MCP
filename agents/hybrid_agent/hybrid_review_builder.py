@@ -21,12 +21,17 @@ import shutil
 import tempfile
 from xml.sax.saxutils import escape
 
-# 强制重定向临时目录至 E 盘，严格恪守零 C 盘占用铁律
-SCRATCH_DIR = r"E:\0mcp-agv\scratch"
-os.makedirs(SCRATCH_DIR, exist_ok=True)
-os.environ["TEMP"] = SCRATCH_DIR
-os.environ["TMP"] = SCRATCH_DIR
-tempfile.tempdir = SCRATCH_DIR
+# 强制重定向临时目录至 E 盘，严格恪守零 C 盘占用铁律（可通过 HUB_SCRATCH_DIR 覆盖；目录不可用时不阻断 import）
+SCRATCH_DIR = os.environ.get("HUB_SCRATCH_DIR", r"E:\0mcp-agv\scratch")
+try:
+    if not os.path.isabs(SCRATCH_DIR):
+        raise OSError("scratch dir must be absolute on this platform")
+    os.makedirs(SCRATCH_DIR, exist_ok=True)
+    os.environ["TEMP"] = SCRATCH_DIR
+    os.environ["TMP"] = SCRATCH_DIR
+    tempfile.tempdir = SCRATCH_DIR
+except OSError:
+    pass
 
 if sys.platform == "win32":
     try:
@@ -450,12 +455,13 @@ class HybridReviewBuilder:
                 bottom_val = "single" if r_idx == len(rows_data) else "none"
                 set_cell_border(cell, bottom=bottom_val, bottom_sz=bottom_sz)
 
-        # 注入标准跨页表头重复 (tblHeader) 与行跨页防撕裂 (cantSplit)
-        trPr_header = table.rows[0]._tr.get_or_add_trPr()
-        trPr_header.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
+        # 注入行跨页防撕裂 (cantSplit) 与跨页表头重复 (tblHeader)
+        # OOXML CT_TrPr 子元素有序：cantSplit 必须位于 tblHeader 之前，否则 WPS/LibreOffice 可能判定文档损坏
         for row in table.rows:
             trPr_row = row._tr.get_or_add_trPr()
             trPr_row.append(parse_xml(f'<w:cantSplit {nsdecls("w")}/>'))
+        trPr_header = table.rows[0]._tr.get_or_add_trPr()
+        trPr_header.append(parse_xml(f'<w:tblHeader {nsdecls("w")}/>'))
 
         p_space = doc.add_paragraph()
         p_space.paragraph_format.space_after = Pt(6)

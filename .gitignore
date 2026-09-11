@@ -48,7 +48,6 @@ htmlcov/
 
 # User exclusions
 .Claude/
-.git/
 .pytest_cache/
 .venv/
 .playwright-mcp/
