@@ -286,6 +286,14 @@ def api_compile_docx(req: CompileRequest, background_tasks: BackgroundTasks):
         return JSONResponse({"status": "error", "message": "指定的课题目录不存在！"})
     if not _is_allowed_path(req.theme_dir):
         return JSONResponse({"status": "error", "message": "课题目录不在受控输出根目录内，已拒绝。"})
+    if not os.path.exists(os.path.join(req.theme_dir, "outline.json")):
+        try:
+            sys.path.insert(0, os.path.join(WORKSPACE_DIR, "agents", "hybrid_agent"))
+            from hybrid_review_builder import write_outline_skeleton
+            skel = write_outline_skeleton(req.theme_dir)
+        except Exception as e:
+            skel = f"(骨架生成失败: {e})"
+        return JSONResponse({"status": "error", "message": f"该课题尚无 outline.json。已生成骨架 {os.path.basename(str(skel))}，请让 Antigravity 通读文献后填写正文并另存为 outline.json，再点编译。"})
     background_tasks.add_task(run_compile_worker, req.theme_dir)
     return {"status": "success", "message": "已启动学术专著活体编译流水线..."}
 

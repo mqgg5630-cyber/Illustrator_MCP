@@ -30,6 +30,12 @@ description: "中英双轨混合学术智能体与文献工程技能：知网 (C
   - 自动在 Zotero 中新建独立的主题分类集合（Collection）；
   - 导出同步更新的双语 `manifest.json`、`References.bib` 与 `References.ris`。
 
+### Step 3.5: 撰写 `outline.json`（Antigravity 亲自撰写正文，编译器零内置内容）
+- `python agents/hybrid_agent/hybrid_review_builder.py "<主题目录>" --skeleton` → 生成 `outline.skeleton.json`（含全部可引用文献 key 与摘要节选）。
+- 通读每篇 PDF 后，按 `agents/hybrid_agent/examples/outline.collagen_example.json` 结构填写 `meta` / `abstract_zh|en` / `keywords_zh|en` / `chapters[].sections[].blocks[]`（`paragraph`：`segments:[{text, cite:[key]}]`；`table`：`caption/headers/rows`）/ `acknowledgement`，另存为 `outline.json`。
+- 引注 key 只能来自 manifest；编译器按正文首次引用顺序自动编号并重排参考文献（GB/T 7714 顺序编码制），未引用文献自动附于文末。
+- 缺少 `outline.json` 时 `run_hybrid_pipeline.py` 会拒绝编译并自动生成骨架。
+
 ### Step 4: 学术专著/学位论文 Word OpenXML 活体编译
 - **唯一权威基准模板**：克隆 `E:\0writing\Lark-Formatter\鲁东大学学术学位论文_Zotero活动引用版_new.docx`。
 - **强制 6-Section 多节拓扑架构（根除“页眉全是目录”）**：

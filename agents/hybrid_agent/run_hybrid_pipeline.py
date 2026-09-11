@@ -20,12 +20,13 @@ if sys.platform == "win32":
         pass
 
 from hybrid_downloader import sync_hybrid_to_zotero
-from hybrid_review_builder import HybridReviewBuilder
+from hybrid_review_builder import HybridReviewBuilder, write_outline_skeleton
 
 def main():
     parser = argparse.ArgumentParser(description="中英双轨混合学术智能体执行流水线")
     parser.add_argument("--theme-dir", required=True, help="课题主题目录绝对路径")
     parser.add_argument("--col-name", default=None, help="Zotero 分类集合名称")
+    parser.add_argument("--skip-zotero", action="store_true", help="跳过 Zotero 挂载，仅编译 DOCX")
     args = parser.parse_args()
 
     theme_dir = args.theme_dir
@@ -38,8 +39,16 @@ def main():
     print(f"📁 目标主题目录: {theme_dir}")
     print("=" * 65)
 
+    outline = os.path.join(theme_dir, "outline.json")
+    if not os.path.exists(outline):
+        skel = write_outline_skeleton(theme_dir)
+        print(f"❌ 缺少 {outline}")
+        print(f"   已生成骨架 {skel}，请让 Antigravity 通读 manifest 文献后填写正文并另存为 outline.json 再运行。")
+        sys.exit(2)
+
     # 1. 物理挂载本地 Zotero
-    sync_hybrid_to_zotero(theme_dir, args.col_name)
+    if not args.skip_zotero:
+        sync_hybrid_to_zotero(theme_dir, args.col_name)
 
     # 2. 编译 DOCX 专著
     builder = HybridReviewBuilder(theme_dir)
