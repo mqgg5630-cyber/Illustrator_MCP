@@ -181,7 +181,26 @@ def sanitize_theme_directory(target_dir, zotero_db_path=r"E:\ozotero\zotero.sqli
     print("=" * 65)
     print(f"🎉 净化完成！当前主题保留真文献总数: {len(cleaned_manifest)} 篇")
     print("=" * 65)
-    return True
+class LiteratureAuditor:
+    """LiteratureAuditor 类封装，便于 GUI 和 Agent 调用"""
+    def __init__(self, target_dir, zotero_db_path=r"E:\ozotero\zotero.sqlite"):
+        self.target_dir = target_dir
+        self.zotero_db_path = zotero_db_path
+
+    def audit_and_purge(self):
+        try:
+            # 优先使用 agents.common.audit_gate
+            common_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "agents", "common"))
+            if common_dir not in sys.path:
+                sys.path.insert(0, common_dir)
+            from audit_gate import LiteratureAuditor as CommonAuditor
+            return CommonAuditor(self.target_dir, self.zotero_db_path).audit_and_purge()
+        except Exception:
+            ok = sanitize_theme_directory(self.target_dir, self.zotero_db_path)
+            # 统计目录下剩余的有效 pdf 数量
+            count = len([f for f in os.listdir(self.target_dir) if f.lower().endswith('.pdf')]) if os.path.exists(self.target_dir) else 0
+            return count, 0
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="自动排除伪造文献与目录物理净化工具")

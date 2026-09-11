@@ -48,7 +48,7 @@ description: "中英双轨混合学术智能体与文献工程技能：知网 (C
 
 ---
 
-## 3. 权威成功案例与黄金标杆 (Golden Reference Case)
-* **中英双轨成功标杆**：`E:\0mcp-agv\ARTA_Agent_Output\Collagen_Stability_MD_Docking_Hybrid_Review\Collagen_Stability_MD_Docking_Hybrid_Review_学术专著论文.docx`
-* **知网与外网 10 篇真实多页 PDF 库**：落盘于 `E:\0mcp-agv\ARTA_Agent_Output\Collagen_Stability_MD_Docking_Hybrid_Review\` 与 `E:\ozotero\storage\`
+## 3. 版式拓扑验证案例 (Layout Verification Demo)
+* **中英双轨版式与 6-Section 拓扑格式验证用例**：`E:\0mcp-agv\ARTA_Agent_Output\Collagen_Stability_MD_Docking_Hybrid_Review\Collagen_Stability_MD_Docking_Hybrid_Review_学术专著论文.docx`（注：本案例为双轨版式排版与分节拓扑验证用例，含合成版式测试数据，非真实知网抓取文献库）
 * **独立工程管线**：`E:\0mcp-agv\agents\hybrid_agent\`
+

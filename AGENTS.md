@@ -45,7 +45,7 @@
   - 模板唯一权威基准：`E:\0writing\Lark-Formatter\鲁东大学学术学位论文_Zotero活动引用版_new.docx`。
   - 中文成功标杆：`E:\0mcp-agv\ARTA_Agent_Output\阿尔兹海默症肠道宏基因组抗菌肽差异\基于深度学习预测阿尔兹海默症肠道宏基因组分阶段病人的抗菌肽差异_顶刊综述学位论文.docx`。
   - 英文成功标杆：`E:\0mcp-agv\ARTA_Agent_Output\AMP_Metagenomics_English_Review\AMP_Metagenomics_English_Review_SCI_Review_Monograph.docx`。
-  - 中英混合成功标杆：`E:\0mcp-agv\ARTA_Agent_Output\Collagen_Stability_MD_Docking_Hybrid_Review\Collagen_Stability_MD_Docking_Hybrid_Review_学术专著论文.docx`。
+  - 中英混合双轨版式与 6-Section 拓扑格式验证用例 (Layout Demo, 含合成版式测试数据，非真实知网抓取标杆)：`E:\0mcp-agv\ARTA_Agent_Output\Collagen_Stability_MD_Docking_Hybrid_Review\Collagen_Stability_MD_Docking_Hybrid_Review_学术专著论文.docx`。
 
 
 ## 6. 顶刊长篇学术综述深度撰写规范 (Deep Review Monograph Standard)

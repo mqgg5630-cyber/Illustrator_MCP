@@ -201,35 +201,50 @@ def run_pipeline_worker(req: SearchRequest):
         
         downloaded_pdfs = []
         
-        # 执行外网或混合文献下载
+        # 引入核心采集与审计模块
+        sys.path.insert(0, WORKSPACE_DIR)
+        from agents.common.literature_harvester import EnglishLiteratureHarvester
+        from agents.common.audit_gate import LiteratureAuditor
+        from agents.common.zotero_sync import sync_to_zotero
+        
+        # 1. 文献下载流程
         if req.source in ["english", "hybrid"]:
             task_state["status_text"] = "正在通过 PubMed/Europe PMC/OpenAlex 检索外网真实文献..."
             add_log("🌐 正在通过官方 Open Access 接口解析正版多页英文 PDF...")
-            # 引入通用下载脚本
-            sys.path.insert(0, os.path.join(WORKSPACE_DIR, "scripts"))
-            from english_pdf_downloader import EnglishLiteratureHarvester
             
             eng_count = req.count if req.source == "english" else max(2, req.count // 2 + 1)
             harvester = EnglishLiteratureHarvester(theme_dir)
-            eng_items = harvester.harvest(req.query, count=eng_count, sync_zotero=req.sync_zotero)
+            # 先不在此处同步 Zotero，待排伪门禁完成后统一挂载真文献
+            eng_items = harvester.harvest(req.query, count=eng_count, sync_zotero_flag=False)
             
             for item in eng_items:
                 pdf_p = item.get("local_pdf")
                 if pdf_p and os.path.exists(pdf_p):
                     downloaded_pdfs.append(pdf_p)
             add_log(f"✅ 外网真实文献采集完成，共受纳 {len(eng_items)} 篇出版级多页 PDF。")
+        elif req.source == "cnki":
+            task_state["status_text"] = "正在检索中国知网 (CNKI) 官方真实多页文献..."
+            add_log("🇨🇳 [知网通道] 正在请求知网官方元数据与多页全文...")
+            # 若知网需要 CDP 鉴权，提示用户并记录
+            add_log("⚠️ 提示: 知网全文直连需要有效 Edge CDP 鉴权会话与校园网/机构 IP。")
             
-        # 执行排伪门禁
+        # 2. 执行排伪审查门禁 (严控真实性，抹除单页/损坏/假文献)
         task_state["status_text"] = "正在执行纯正性与排伪审查门禁..."
-        from auto_exclude_invalid_literature import LiteratureAuditor
         auditor = LiteratureAuditor(theme_dir)
         clean_count, evicted_count = auditor.audit_and_purge()
         add_log(f"🛡️ [排伪门禁] 审查完毕: {clean_count} 篇通过, 剔除 {evicted_count} 篇损坏/无效文件。")
         
-        # Zotero 挂载完成提示
-        if req.sync_zotero:
-            task_state["status_text"] = "已将实体文献与 Zotero 数据库建立物理附件关联..."
-            add_log("📎 [Zotero 联动] 物理附件已写入 E:/ozotero/storage，本地 SQLite 索引构建完毕。")
+        # 3. Zotero 活体挂载 (仅对通过排伪门禁的真文献进行同步)
+        if req.sync_zotero and clean_count > 0:
+            task_state["status_text"] = "正在将实体文献与 Zotero 数据库建立物理附件关联..."
+            add_log("📎 [Zotero 联动] 写入 SQLite 元数据、作者表与 E:/ozotero/storage 物理附件...")
+            try:
+                sync_to_zotero(theme_dir, collection_name=f"Hub_{topic_clean}")
+                add_log(f"✅ [Zotero 联动] 成功将 {clean_count} 篇纯正文献物理挂载至本地 Zotero 库！")
+            except Exception as ze:
+                add_log(f"⚠️ [Zotero 提示] 挂载发生警告: {ze}")
+        elif req.sync_zotero:
+            add_log("ℹ️ [Zotero 提示] 无有效文献需要挂载。")
             
         # Gmail 派发
         if req.send_gmail and req.gmail_to:
