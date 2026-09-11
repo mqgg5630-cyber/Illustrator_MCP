@@ -29,6 +29,7 @@ mcp_config.json.invalid-*
 # Temp files
 nul
 tmpclaude-*
+scratch/
 
 # Test output artifacts
 *.log
@@ -45,9 +46,35 @@ htmlcov/
 # Jupyter
 .ipynb_checkpoints/
 
-
 # User exclusions
 .Claude/
 .git/
 .pytest_cache/
 .venv/
+.playwright-mcp/
+
+# Academic agent output & heavy binaries (Zero Git Bloat)
+ARTA_Agent_Output/
+complexes_best_vina/
+PPTist/
+CyberPPT/
+gas-sheet-project/
+renders_*/
+output_dashi_*/
+icon_cache/
+icon_cache_flagship/
+extracted_icons_*/
+cyber_svg_icons_png/
+fig1_assets/
+
+# Root test slides, AI artwork and temporary renders
+*.pptx
+*.ai
+captcha_*.png
+test_brain.png
+image.png
+fig1_*.png
+fig1_*.svg
+ad_amp_*.png
+ad_amp_*.ai
+smart_illustrator_*.png
