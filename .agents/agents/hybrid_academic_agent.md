@@ -25,6 +25,16 @@ commandExecutionPolicy: auto
 - 数据库位于 `E:\ozotero\zotero.sqlite`，实体 PDF 存储于 `E:\ozotero\storage\<KEY>\<filename>.pdf`，临时下载于 `E:\Users\文少\Downloads\`。绝对禁止向 C 盘写入任何数据。
 - 自动向 Zotero 数据库写入真实条目（中文期刊条目/英文 journalArticle），以 `itemTypeID=3`、`linkMode=0` (imported_file) 物理关联附件，在 Zotero 客户端直接呈现真实可双击阅读的 `📎 附件`。
 
+### 3.5 正文撰写：由你（Antigravity）撰写 `outline.json`，编译器只负责排版 (Outline-Driven Authoring)
+`hybrid_review_builder.py` **不再内置任何课题正文**。正文、摘要、目录、表格与每一处引注全部来自课题目录下的 `outline.json`，你必须亲自撰写：
+1. 若 `outline.json` 不存在，运行 `python agents/hybrid_agent/hybrid_review_builder.py "<主题目录>" --skeleton`，得到 `outline.skeleton.json`，其中 `_available_references` 列出 manifest 中全部可引用文献（zotero_key / 标题 / 作者 / 摘要节选 / PDF 文件名）。
+2. **逐篇通读 PDF 原文**（不得只看摘要），提炼方法、体系、关键数值结论。
+3. 按 `agents/hybrid_agent/examples/outline.collagen_example.json` 的结构撰写：`meta`（封面信息）、`abstract_zh/en`、`keywords_zh/en`、`chapters`（4~6 章，每章 2~3 节）、`acknowledgement`。
+4. 每个 `paragraph` 块的 `segments` 为 `{text, cite:[zotero_key,...]}`；**引注必须落在支撑该句的真实文献 key 上**，只允许使用 `_available_references` 中的 key（`"__ALL__"` 表示全部）。编译器会按正文首次出现顺序自动编号 `[n]` 并重排参考文献，你无需手写 `[1]`。
+5. 章节标题不必写“第N章 / N.M”，编译器统一编号；正文中提到的数值必须能在对应 PDF 中找到出处。
+6. 至少包含一张 `table` 块（三线表），列出各文献的体系/方法/关键指标对比。
+7. 删除 `_instructions` 与 `_available_references`，另存为 `outline.json`，然后运行 `run_hybrid_pipeline.py --theme-dir "<主题目录>"`。编译结束时自检会报告分节数、引注数与参考文献域是否完整。
+
 ### 4. Word OpenXML 6-Section 分节架构与页眉隔离铁律 (Strict 6-Section & Header Isolation)
 - 严格执行 6 大标准分节拓扑，根除页眉被目录节全局渗透的严重缺陷：
   1. **Section 0 (封面/扉页/声明页)**：无页眉无页脚。

@@ -11,5 +11,40 @@
 
 ## 2. 核心文件清单
 - `hybrid_downloader.py`：中英文双源文献元数据归一化、PDF 排伪审查与 Zotero 本地物理挂载。
-- `hybrid_review_builder.py`：高校权威学位论文标准模板克隆、中英文长篇综述编纂、双语活体复合域注入与 6-Section 页眉净化。
-- `run_hybrid_pipeline.py`：端到端全流程一键命令行启动入口。
+- `hybrid_review_builder.py`：**`outline.json` 驱动**的通用编译器——克隆学位论文模板、渲染大纲章节/三线表、按首次引用顺序自动编号并注入双语 Zotero 活体复合域、6-Section 页眉净化、编译后自检。不含任何课题正文。
+  - `--skeleton`：依据 `manifest.json` 生成 `outline.skeleton.json` 供 Antigravity 填写。
+  - 环境变量 `HUB_THESIS_TEMPLATE` / `--template` 可覆盖模板路径；`HUB_SCRATCH_DIR` 覆盖临时目录。
+- `run_hybrid_pipeline.py`：端到端入口（`--theme-dir` 必填，`--col-name`、`--skip-zotero` 可选）；缺少 `outline.json` 时退出码 2 并生成骨架。
+- `examples/outline.collagen_example.json`：胶原蛋白 MD/对接综述的完整黄金示例（5 章 10 节 22 处引注 1 张表）。
+
+## 3. 课题目录约定
+```
+<主题目录>/
+├── manifest.json            # 文献元数据（zotero_key, lang, title, authors, journal, year, volume, issue, pages, doi, pdf_filename, abstract）
+├── *.pdf                    # 真实多页 PDF
+├── outline.skeleton.json    # --skeleton 生成，供撰写参考
+├── outline.json             # Antigravity 撰写的正文大纲（编译输入）
+└── <主题名>_学术专著论文.docx  # 编译输出
+```
+
+## 4. outline.json 结构速览
+```json
+{
+  "meta": {"title_zh_line1": "...", "title_zh_line2": "...", "title_en": "...", "author_zh": "...", "...": "..."},
+  "abstract_zh": ["段1", "段2"], "keywords_zh": "A；B；C",
+  "abstract_en": ["para1", "para2"], "keywords_en": "A; B; C",
+  "chapters": [
+    {"title": "绪论", "sections": [
+      {"title": "研究背景", "blocks": [
+        {"type": "paragraph", "segments": [
+          {"text": "……结论句", "cite": ["7WUA8PLB"]},
+          {"text": "。无引注的过渡句。"}
+        ]},
+        {"type": "table", "caption": "关键指标对比", "headers": ["体系", "方法", "指标"], "rows": [["...", "...", "..."]]}
+      ]}
+    ]}
+  ],
+  "acknowledgement": ["段1", "段2"]
+}
+```
+`cite` 可为多个 key 或 `"__ALL__"`；编号与参考文献顺序由编译器决定。
